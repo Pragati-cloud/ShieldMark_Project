@@ -1,0 +1,11 @@
+{
+  "apiKey": "AIzaSyCMbm2gPDLHq7j9d3JWsl7FjJS5dysM2OE",
+  "authDomain": "shieldmark-d3baa.firebaseapp.com",
+  "projectId": "shieldmark-d3baa",
+  "storageBucket": "shieldmark-d3baa.firebasestorage.app",
+  "messagingSenderId": "605711413701",
+  "appId": "1:605711413701:web:3e6924687b7a68652b9bac",
+  "measurementId": "G-LMHYH78NMS",
+  "firestoreDatabaseId": "(default)",
+  "databaseURL": "https://shieldmark-d3baa-default-rtdb.firebaseio.com/"
+}

@@ -1,0 +1,85 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helpers ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- Entity Validations ---
+
+    function isValidScan(data) {
+      return data.keys().hasAll(['userId', 'imageUrl', 'owner', 'confidence', 'createdAt']) &&
+             data.keys().size() <= 7 &&
+             data.userId == request.auth.uid &&
+             data.imageUrl is string && data.imageUrl.size() <= 2048 &&
+             data.owner is string && data.owner.size() <= 256 &&
+             data.confidence is number && data.confidence >= 0 && data.confidence <= 100 &&
+             data.createdAt == request.time &&
+             (!('metadata' in data) || (
+               data.metadata is map &&
+               (!('camera' in data.metadata) || data.metadata.camera is string) &&
+               (!('location' in data.metadata) || data.metadata.location is string) &&
+               (!('software' in data.metadata) || data.metadata.software is string)
+             )) &&
+             (!('reasoning' in data) || (data.reasoning is string && data.reasoning.size() <= 5000));
+    }
+
+    function isValidClaim(data) {
+      return data.keys().hasAll(['userId', 'creatorName', 'status', 'createdAt']) &&
+             data.keys().size() <= 8 &&
+             data.userId == request.auth.uid &&
+             data.creatorName is string && data.creatorName.size() <= 256 &&
+             data.status == 'pending' &&
+             data.createdAt == request.time &&
+             (!('creationDate' in data) || data.creationDate is string) &&
+             (!('description' in data) || (data.description is string && data.description.size() <= 5000)) &&
+             (!('evidenceUrl' in data) || (data.evidenceUrl is string && data.evidenceUrl.size() <= 2048)) &&
+             (!('registryId' in data) || (data.registryId is string && data.registryId.size() <= 256));
+    }
+
+    // --- Collections ---
+
+    match /scans/{scanId} {
+      allow get: if isOwner(existing().userId);
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(scanId) && isValidScan(incoming());
+      allow update: if false; // Scans are immutable records of analysis
+      allow delete: if isOwner(existing().userId);
+    }
+
+    match /claims/{claimId} {
+      allow get: if isOwner(existing().userId);
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(claimId) && isValidClaim(incoming());
+      allow update: if isOwner(existing().userId) && 
+                      existing().status == 'pending' &&
+                      incoming().status == 'pending' &&
+                      incoming().userId == existing().userId &&
+                      incoming().createdAt == existing().createdAt &&
+                      incoming().diff(existing()).affectedKeys().hasOnly(['creatorName', 'description', 'evidenceUrl', 'creationDate']);
+      allow delete: if isOwner(existing().userId) && existing().status == 'pending';
+    }
+  }
+}

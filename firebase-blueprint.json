@@ -1,0 +1,52 @@
+{
+  "entities": {
+    "Scan": {
+      "title": "Image Scan",
+      "description": "Metadata about an image forensic analysis.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "The user who performed the scan." },
+        "imageUrl": { "type": "string", "description": "The URL of the scanned image." },
+        "owner": { "type": "string", "description": "Detected owner." },
+        "confidence": { "type": "number", "description": "Confidence score 0-100." },
+        "reasoning": { "type": "string", "description": "AI analysis reasoning." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Time of scan." },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "camera": { "type": "string" },
+            "location": { "type": "string" },
+            "software": { "type": "string" }
+          }
+        }
+      },
+      "required": ["userId", "imageUrl", "owner", "confidence", "createdAt"]
+    },
+    "Claim": {
+      "title": "Ownership Claim",
+      "description": "A claim of ownership for an image.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "The claimant." },
+        "creatorName": { "type": "string" },
+        "creationDate": { "type": "string", "format": "date" },
+        "description": { "type": "string" },
+        "evidenceUrl": { "type": "string" },
+        "registryId": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "verified", "rejected"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "creatorName", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/scans/{scanId}": {
+      "schema": "Scan",
+      "description": "Collection of image forensic scans."
+    },
+    "/claims/{claimId}": {
+      "schema": "Claim",
+      "description": "Collection of ownership claims."
+    }
+  }
+}
