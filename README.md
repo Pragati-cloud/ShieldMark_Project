@@ -4,8 +4,9 @@
 
 ShieldMark is a cutting-edge platform designed for creators, digital artists, and photographers to reclaim control over their visual intellectual property. By leveraging advanced AI analysis and a blockchain-inspired registry, ShieldMark detects unauthorized usage, verifies original attribution, and facilitates legal claims against infringements.
 
-![ShieldMark Dashboard](Screenshot 2026-04-28 194139.png)
-
+![ShieldMark Dashboard](Dashboard.png)
+![ShieldMark Dashboard](Claim.png)
+![ShieldMark Dashboard](Image-Analyze.png)
 ## 🚀 Core Features
 
 ### 🔍 Forensic Analysis Engine
