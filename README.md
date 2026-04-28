@@ -106,4 +106,4 @@ The interface is designed with a **Desktop-First Precision, Mobile-First Code** 
 ---
 
 *Made By Pragati Mishra.*
-git init
+
